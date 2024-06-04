@@ -1,0 +1,16 @@
+server.port: 8075
+demo.security.jwt:
+  tokenExpirationTime: 40 # Number of minutes
+  refreshTokenExpTime: 60 # Minutes
+  tokenIssuer: http://svlada.com
+  tokenSigningKey: xm8EV6Hy5RMFK4EEACIDAwQus
+
+spring:
+  profiles:
+    active: dev
+
+mybatis-plus:
+  mapper-locations: classpath:com/boruomi/business/mapper/xml/*.xml
+  type-aliases-package: com.boruomi.business.model.entity
+  configuration:
+    map-underscore-to-camel-case: true
