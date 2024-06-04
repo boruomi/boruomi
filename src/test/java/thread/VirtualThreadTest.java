@@ -27,6 +27,7 @@ public class VirtualThreadTest {
     public void test2() {
         // 使用虚拟线程池
         try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+
             Runnable task2 = () -> {
                 System.out.println("Hello from virtual thread pool: " + Thread.currentThread());
             };
