@@ -10,7 +10,6 @@ import com.boruomi.common.security.config.WebSecurityConfig;
 import com.boruomi.common.security.exceptions.InvalidJwtToken;
 import com.boruomi.common.security.model.UserContext;
 import com.boruomi.common.security.model.token.*;
-import com.boruomi.security.model.token.*;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
