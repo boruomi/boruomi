@@ -59,7 +59,8 @@ public class WebSecurityConfig {
         List<String> permitAllEndpointList = Arrays.asList(
                 AUTHENTICATION_URL,
                 REFRESH_TOKEN_URL,
-                "/console"
+                "/console",
+                "test/**"
         );
 
         http
@@ -70,7 +71,7 @@ public class WebSecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 禁用session，前后端分离不需要
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(AUTHENTICATION_URL, REFRESH_TOKEN_URL, "/console").permitAll()
+                        .requestMatchers(AUTHENTICATION_URL, REFRESH_TOKEN_URL, "/console","test/**").permitAll()
                         .anyRequest().authenticated()
                 ) // 设置权限，除了登录登出不需要认证，其余均需要认证
                 .addFilterBefore(new CustomCorsFilter(), UsernamePasswordAuthenticationFilter.class)
