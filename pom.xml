@@ -18,6 +18,9 @@
         <mybatisPlus.version>3.5.6</mybatisPlus.version>
         <mysqlDriver.version>8.0.32</mysqlDriver.version>
         <fastJson.version>1.2.83</fastJson.version>
+        <jaxb.version>2.3.1</jaxb.version>
+        <commons.net.version>3.10.0</commons.net.version>
+        <commons.pool2.version>2.11.1</commons.pool2.version>
     </properties>
     <dependencies>
         <dependency>
@@ -80,8 +83,23 @@
         <dependency>
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
-            <version>2.3.1</version>
+            <version>${jaxb.version}</version>
         </dependency>
+
+        <!--ftp连接 -->
+        <!-- Apache Commons Net -->
+        <dependency>
+            <groupId>commons-net</groupId>
+            <artifactId>commons-net</artifactId>
+            <version>${commons.net.version}</version>
+        </dependency>
+        <!-- Apache Commons Pool2 -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-pool2</artifactId>
+            <version>${commons.pool2.version}</version>
+        </dependency>
+
 
     </dependencies>
 
