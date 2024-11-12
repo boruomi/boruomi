@@ -14,13 +14,19 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>21</java.version>
+        <jjwt.version>0.6.0</jjwt.version>
         <mybatisPlus.version>3.5.6</mybatisPlus.version>
         <mysqlDriver.version>8.0.32</mysqlDriver.version>
         <fastJson.version>1.2.83</fastJson.version>
+        <jaxb.version>2.3.1</jaxb.version>
         <commons.net.version>3.10.0</commons.net.version>
         <commons.pool2.version>2.11.1</commons.pool2.version>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -36,6 +42,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+        </dependency>
+        <!--jwt-->
+        <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt</artifactId>
+        <version>${jjwt.version}</version>
         </dependency>
         <!-- lombok -->
         <dependency>
@@ -66,6 +78,12 @@
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
             <version>${fastJson.version}</version>
+        </dependency>
+        <!--生产token时使用， 在JavaSE9已废弃 -->
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>${jaxb.version}</version>
         </dependency>
 
         <!--ftp连接 -->
