@@ -26,4 +26,11 @@ public interface ISysUserService extends IService<SysUserEntity> {
      * @return
      */
     Token login(SysUserEntity user);
+
+    /**
+     * 退出
+     * @param accessToken
+     * @return
+     */
+    void loginOut(String accessToken);
 }

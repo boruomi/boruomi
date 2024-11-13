@@ -1,5 +1,6 @@
 package com.boruomi.business.controller;
 
+import cn.hutool.http.server.HttpServerRequest;
 import com.boruomi.business.model.entity.SysUserEntity;
 import com.boruomi.business.model.entity.Token;
 import com.boruomi.business.service.Impl.SysUserService;
@@ -42,6 +43,18 @@ public class SysUserController {
         } catch (Exception e) {
             log.error("login fail",e);
             return R.fail("login fail");
+        }
+    }
+
+    @PostMapping("/loginOut")
+    public R loginOut(@RequestBody SysUserEntity user, HttpServerRequest request) {
+        try {
+            String token = request.getHeader("Authorization");
+            sysUserService.loginOut(token);
+            return R.success("loginOut success");
+        } catch (Exception e) {
+            log.error("loginOut fail",e);
+            return R.fail("loginOut fail");
         }
     }
 }

@@ -8,11 +8,13 @@ import com.boruomi.business.model.entity.Token;
 import com.boruomi.business.model.vo.SysUserVO;
 import com.boruomi.business.service.ISysUserService;
 import com.boruomi.common.util.AESUtil;
-import com.boruomi.common.util.JwtUtil;
+import com.boruomi.common.util.JwtService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -20,7 +22,10 @@ import java.util.Optional;
 public class SysUserService extends ServiceImpl<SysUserMapper, SysUserEntity> implements ISysUserService {
     @Autowired
     private  SysUserMapper sysUserMapper;
-
+    @Autowired
+    private RedisTemplate<String,Object> redisTemplate;
+    @Autowired
+    private JwtService jwtService;
     @Override
     public Optional<SysUserVO> getByUsername(String account) {
         return sysUserMapper.findByUsername(account);
@@ -42,11 +47,21 @@ public class SysUserService extends ServiceImpl<SysUserMapper, SysUserEntity> im
     public Token login(SysUserEntity user) {
         SysUserEntity authenticate = authenticate(user);
         if (null != authenticate){
-            String accessToken = JwtUtil.createAccessToken(user.getAccount(), user.getUserName());
-            String refreshToken = JwtUtil.createRefreshToken(user.getAccount(), user.getUserName());
-            return Token.builder().accessToken(accessToken).refreshToken(refreshToken).build();
+            String accessToken = jwtService.createAccessToken(user.getAccount(), user.getUserName());
+            String refreshToken = jwtService.createRefreshToken(user.getAccount(), user.getUserName());
+            return Token.builder()
+                    .accessToken(accessToken)
+                    .refreshToken(refreshToken)
+                    .build();
         }
         return null;
+    }
+
+    @Override
+    public void loginOut(String accessToken) {
+        Map<String, Object> map = jwtService.parseToken(accessToken);
+        String jti = (String) map.get("jti");
+        redisTemplate.opsForValue().set("blackList-"+jti, jti);
     }
 
     /**
