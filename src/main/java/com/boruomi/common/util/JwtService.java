@@ -3,6 +3,8 @@ package com.boruomi.common.util;
 import cn.hutool.jwt.JWT;
 import cn.hutool.jwt.JWTException;
 import cn.hutool.jwt.JWTUtil;
+import com.boruomi.common.Const;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -11,17 +13,18 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Component
 public class JwtService {
     @Autowired
     private  RedisTemplate<String, Object> redisTemplate;
 
-    @Value(value = "cache.access_token_expiration_minute")
-    private long ACCESS_TOKEN_EXPIRATION_MINUTE;
+    @Value(value = "${cache.access_token_expiration_minute}")
+    private Integer ACCESS_TOKEN_EXPIRATION_MINUTE;
 
-    @Value(value = "cache.refresh_token_expiration_day")
-    private long REFRESH_TOKEN_EXPIRATION_DAY;
+    @Value(value = "${cache.refresh_token_expiration_day}")
+    private Integer REFRESH_TOKEN_EXPIRATION_DAY;
     // 密钥
     private static final String SECRET_KEY = "4DcW0jjVVe/4eZZS/JpiCQ==";
 
@@ -33,14 +36,14 @@ public class JwtService {
 
         // 载荷信息：可以包含一些必要的用户信息
         Map<String, Object> payload = new HashMap<>();
-        String jti = redisTemplate.opsForValue().increment("jwt-",1).toString() + "-" + System.currentTimeMillis();
+        String jti = redisTemplate.opsForValue().increment("jti",1).toString() + "-" + System.currentTimeMillis();
         payload.put("jti", jti);
         payload.put("userId", userId);
         payload.put("username", username);
         payload.put("iat", new Date().getTime());  // 生成时间
         payload.put("exp", System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION_MINUTE * 60 * 1000L);  // 过期时间
         // 生成并返回访问 Token
-        return  JWTUtil.createToken(payload, header, SECRET_KEY.getBytes());
+        return "Bearer "+  JWTUtil.createToken(header, payload, SECRET_KEY.getBytes());
     }
 
     // 生成刷新 Token
@@ -51,14 +54,14 @@ public class JwtService {
 
         // 载荷信息：可以包含一些必要的用户信息
         Map<String, Object> payload = new HashMap<>();
-        String jti = redisTemplate.opsForValue().increment("jwt-",1).toString() + "-" + System.currentTimeMillis();
+        String jti = redisTemplate.opsForValue().increment("jti",1).toString() + "-" + System.currentTimeMillis();
         payload.put("jti", jti);
         payload.put("userId", userId);
         payload.put("username", username);
         payload.put("iat", new Date().getTime());  // 生成时间
         payload.put("exp", System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION_DAY * 24 * 60 * 60 * 1000L);  // 过期时间
         // 生成并返回刷新 Token
-        return  JWTUtil.createToken(payload, header, SECRET_KEY.getBytes());
+        return "Bearer "+  JWTUtil.createToken(header, payload, SECRET_KEY.getBytes());
     }
 
     // 验证 Token（用于验证访问 Token 和刷新 Token）
@@ -66,12 +69,6 @@ public class JwtService {
         try {
             boolean tokenExpired = isTokenExpired(token);
             if (tokenExpired) {
-                return false;
-            }
-            Map<String, Object> payload = parseToken(token);
-            String jti = payload.get("jti").toString();
-            Object tokenCatch = redisTemplate.opsForValue().get(jti);
-            if (null==tokenCatch){
                 return false;
             }
             // 使用密钥验证 Token
@@ -96,7 +93,14 @@ public class JwtService {
             return null;
         }
     }
-
+    // 获取 Token 中的jti
+    public String getJti(String token) {
+        Map<String, Object> payload = parseToken(token);
+        if (payload != null && payload.containsKey("jti")) {
+            return (String) payload.get("jti");
+        }
+        return null;
+    }
     // 获取 Token 中的用户信息（例如 userId）
     public String getUserId(String token) {
         Map<String, Object> payload = parseToken(token);
@@ -118,7 +122,7 @@ public class JwtService {
     public boolean isTokenExpired(String token) {
         Map<String, Object> payload = parseToken(token);
         if (payload != null && payload.containsKey("exp")) {
-            long expTime = (Long) payload.get("exp");
+            long expTime = Long.parseLong(payload.get("exp").toString());
             return System.currentTimeMillis() > expTime;
         }
         return false;
@@ -137,6 +141,21 @@ public class JwtService {
             return createAccessToken(userId, username);  // 刷新并生成新的访问 Token
         }
         return null;
+    }
+    public String getRealToken(String request) {
+        if (request != null && request.startsWith("Bearer ")) {
+            return request.substring(7); // 去掉 "Bearer " 前缀
+        }
+        return null;
+    }
+    public void addBlackList(String token) {
+        Map<String, Object> map = parseToken(token);
+        String jti = (String) map.get("jti");
+        long expTime =Long.parseLong(map.get("exp").toString());
+        if (System.currentTimeMillis() < expTime){
+            expTime-= System.currentTimeMillis();
+            redisTemplate.opsForValue().set(Const.BLACKLIST_JTI+jti,"black", expTime, TimeUnit.MILLISECONDS);
+        }
     }
 
     // 主函数测试

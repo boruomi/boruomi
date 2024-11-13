@@ -1,10 +1,10 @@
 package com.boruomi.business.controller;
 
-import cn.hutool.http.server.HttpServerRequest;
 import com.boruomi.business.model.entity.SysUserEntity;
 import com.boruomi.business.model.entity.Token;
 import com.boruomi.business.service.Impl.SysUserService;
 import com.boruomi.common.response.R;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @Slf4j
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/user")
 public class SysUserController {
     private final SysUserService sysUserService;
 
@@ -47,9 +47,11 @@ public class SysUserController {
     }
 
     @PostMapping("/loginOut")
-    public R loginOut(@RequestBody SysUserEntity user, HttpServerRequest request) {
+    public R loginOut(HttpServletRequest request) {
         try {
-            String token = request.getHeader("Authorization");
+            String accessToken = request.getHeader("Authorization");
+            String refreshToken = request.getHeader("refreshToken");
+            Token token = Token.builder().accessToken(accessToken).refreshToken(refreshToken).build();
             sysUserService.loginOut(token);
             return R.success("loginOut success");
         } catch (Exception e) {

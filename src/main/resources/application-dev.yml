@@ -13,5 +13,5 @@ spring:
       port: 6379
       database: 0
 cache:
-  access_token_expiration_minute: 15 # 访问 Token 默认过期时间：15分钟
-  refresh_token_expiration_day: 30 # 刷新 Token 默认过期时间：30天
+  access_token_expiration_minute: 15
+  refresh_token_expiration_day: 30

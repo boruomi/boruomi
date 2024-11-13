@@ -7,6 +7,7 @@ import com.boruomi.business.model.entity.SysUserEntity;
 import com.boruomi.business.model.entity.Token;
 import com.boruomi.business.model.vo.SysUserVO;
 import com.boruomi.business.service.ISysUserService;
+import com.boruomi.common.Const;
 import com.boruomi.common.util.AESUtil;
 import com.boruomi.common.util.JwtService;
 import lombok.extern.slf4j.Slf4j;
@@ -58,10 +59,12 @@ public class SysUserService extends ServiceImpl<SysUserMapper, SysUserEntity> im
     }
 
     @Override
-    public void loginOut(String accessToken) {
-        Map<String, Object> map = jwtService.parseToken(accessToken);
-        String jti = (String) map.get("jti");
-        redisTemplate.opsForValue().set("blackList-"+jti, jti);
+    public void loginOut(Token token) {
+        String accessToken = jwtService.getRealToken(token.getAccessToken());
+        String refreshToken = jwtService.getRealToken(token.getRefreshToken());
+        jwtService.addBlackList(accessToken);
+        jwtService.addBlackList(refreshToken);
+
     }
 
     /**

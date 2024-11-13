@@ -7,10 +7,6 @@ import lombok.Data;
 @Builder
 public class Token {
     /**
-     * 唯一标识
-     */
-    private String jti;
-    /**
      * 访问令牌
      */
     private String accessToken;
