@@ -30,6 +30,10 @@ public class JwtService {
 
     // 生成访问 Token
     public String createAccessToken(String userId, String username) {
+        // 检查参数是否为 null
+        if (userId == null || username == null) {
+            throw new IllegalArgumentException("userId 和 username 不能为 null");
+        }
         Map<String, Object> header = new HashMap<>();
         header.put("alg", "HS256");  // 签名算法
         header.put("typ", "JWT");    // Token 类型
@@ -48,6 +52,10 @@ public class JwtService {
 
     // 生成刷新 Token
     public String createRefreshToken(String userId, String username) {
+        // 检查参数是否为 null
+        if (userId == null || username == null) {
+            throw new IllegalArgumentException("userId 和 username 不能为 null");
+        }
         Map<String, Object> header = new HashMap<>();
         header.put("alg", "HS256");  // 签名算法
         header.put("typ", "JWT");    // Token 类型

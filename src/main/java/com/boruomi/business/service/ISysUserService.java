@@ -33,4 +33,11 @@ public interface ISysUserService extends IService<SysUserEntity> {
      * @return
      */
     void loginOut(Token token);
+
+    /**
+     * 获取accessToken
+     * @param refreshToken
+     * @return
+     */
+    String getAccessToken(String refreshToken);
 }

@@ -67,6 +67,15 @@ public class SysUserService extends ServiceImpl<SysUserMapper, SysUserEntity> im
 
     }
 
+    @Override
+    public String getAccessToken(String refreshToken) {
+        if (refreshToken == null) throw new RuntimeException("refreshToken is null");
+        String realToken = jwtService.getRealToken(refreshToken);
+        String userId = jwtService.getUserId(realToken);
+        String username = jwtService.getUsername(realToken);
+        return jwtService.createAccessToken(userId,username);
+    }
+
     /**
      * 验证用户
      * @param user

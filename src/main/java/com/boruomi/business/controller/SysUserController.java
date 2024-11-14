@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@AllArgsConstructor
 @Slf4j
 @RestController
+@AllArgsConstructor
 @RequestMapping("/user")
 public class SysUserController {
     private final SysUserService sysUserService;
@@ -57,6 +57,18 @@ public class SysUserController {
         } catch (Exception e) {
             log.error("loginOut fail",e);
             return R.fail("loginOut fail");
+        }
+    }
+
+    @GetMapping("/getAccessToken")
+    public R getAccessToken(HttpServletRequest request) {
+        try {
+            String refreshToken = request.getHeader("Authorization");
+            String token = sysUserService.getAccessToken(refreshToken);
+            return R.data(token);
+        } catch (Exception e) {
+            log.error("getAccessToken fail",e);
+            return R.fail("getAccessToken fail");
         }
     }
 }

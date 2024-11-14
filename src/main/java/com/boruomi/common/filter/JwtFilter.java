@@ -68,6 +68,7 @@ public class JwtFilter implements Filter {
     // 检查请求路径是否是免验证路径
     private boolean isExcludedPath(String requestURI) {
         return requestURI.equals("/user/login")
-                || requestURI.equals("/user/register");
+                || requestURI.equals("/user/register")
+                || requestURI.equals("/user/getAccessToken");
     }
 }

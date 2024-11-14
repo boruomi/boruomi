@@ -1,4 +1,4 @@
-package com.boruomi.business.event;
+package com.boruomi.common.event;
 import com.boruomi.business.model.entity.SysUserEntity;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
