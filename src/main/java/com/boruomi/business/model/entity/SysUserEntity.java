@@ -33,10 +33,6 @@ public class SysUserEntity implements Serializable {
 	private String userName;
 
 	/**
-	 * 角色
-	 */
-	private Long roleId;
-	/**
 	 * 状态（0：未激活 1：已激活 2：已禁用  3：已锁定 4：已删除）
 	 */
 	private Integer status;

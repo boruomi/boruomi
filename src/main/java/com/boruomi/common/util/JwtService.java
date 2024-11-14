@@ -1,5 +1,6 @@
 package com.boruomi.common.util;
 
+import cn.hutool.json.JSONArray;
 import cn.hutool.jwt.JWT;
 import cn.hutool.jwt.JWTException;
 import cn.hutool.jwt.JWTUtil;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -29,7 +31,7 @@ public class JwtService {
     private static final String SECRET_KEY = "4DcW0jjVVe/4eZZS/JpiCQ==";
 
     // 生成访问 Token
-    public String createAccessToken(String userId, String username) {
+    public String createAccessToken(Long userId, String username, List<String> permissions) {
         // 检查参数是否为 null
         if (userId == null || username == null) {
             throw new IllegalArgumentException("userId 和 username 不能为 null");
@@ -44,6 +46,7 @@ public class JwtService {
         payload.put("jti", jti);
         payload.put("userId", userId);
         payload.put("username", username);
+        payload.put("permissions",permissions);
         payload.put("iat", new Date().getTime());  // 生成时间
         payload.put("exp", System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION_MINUTE * 60 * 1000L);  // 过期时间
         // 生成并返回访问 Token
@@ -51,7 +54,7 @@ public class JwtService {
     }
 
     // 生成刷新 Token
-    public String createRefreshToken(String userId, String username) {
+    public String createRefreshToken(Long userId, String username) {
         // 检查参数是否为 null
         if (userId == null || username == null) {
             throw new IllegalArgumentException("userId 和 username 不能为 null");
@@ -110,10 +113,10 @@ public class JwtService {
         return null;
     }
     // 获取 Token 中的用户信息（例如 userId）
-    public String getUserId(String token) {
+    public Long getUserId(String token) {
         Map<String, Object> payload = parseToken(token);
         if (payload != null && payload.containsKey("userId")) {
-            return (String) payload.get("userId");
+            return Long.valueOf(payload.get("userId").toString()) ;
         }
         return null;
     }
@@ -122,6 +125,13 @@ public class JwtService {
         Map<String, Object> payload = parseToken(token);
         if (payload != null && payload.containsKey("username")) {
             return (String) payload.get("username");
+        }
+        return null;
+    }
+    public JSONArray getPermissions(String token) {
+        Map<String, Object> payload = parseToken(token);
+        if (payload != null && payload.containsKey("permissions")) {
+            return (JSONArray) payload.get("permissions");
         }
         return null;
     }
@@ -136,20 +146,6 @@ public class JwtService {
         return false;
     }
 
-    // 刷新 Token（如果过期，则通过刷新 Token 生成新的访问 Token）
-    public String refreshAccessToken(String refreshToken) {
-        if (isTokenExpired(refreshToken)) {
-            return null;  // 如果刷新 Token 已过期，则返回 null
-        }
-
-        Map<String, Object> payload = parseToken(refreshToken);
-        if (payload != null) {
-            String userId = (String) payload.get("userId");
-            String username = (String) payload.get("username");
-            return createAccessToken(userId, username);  // 刷新并生成新的访问 Token
-        }
-        return null;
-    }
     public String getRealToken(String request) {
         if (request != null && request.startsWith("Bearer ")) {
             return request.substring(7); // 去掉 "Bearer " 前缀

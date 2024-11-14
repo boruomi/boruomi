@@ -1,5 +1,6 @@
 package com.boruomi.common.filter;
 
+import cn.hutool.json.JSONArray;
 import com.alibaba.fastjson.JSON;
 import com.boruomi.common.Const;
 import com.boruomi.common.response.R;
@@ -51,7 +52,15 @@ public class JwtFilter implements Filter {
             String jti = jwtService.getJti(token);
             //检查是否在黑名单
             boolean inBlackList = Boolean.TRUE.equals(redisTemplate.hasKey(Const.BLACKLIST_JTI+ jti));
-            if (inBlackList ||!jwtService.verifyToken(token)){
+            //判断是否存在权限
+            JSONArray permissions = jwtService.getPermissions(token);
+            if (requestURI.equals("/user/getAccessToken")&&permissions==null){
+                chain.doFilter(request, response);
+                return;
+            }
+            boolean noPermission = permissions==null || !permissions.contains(requestURI);
+
+            if (inBlackList || noPermission ||!jwtService.verifyToken(token)){
                 httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 r.setCode(ResultCode.UN_AUTHORIZED.getCode());
                 r.setMsg(ResultCode.UN_AUTHORIZED.getMessage());
@@ -68,7 +77,6 @@ public class JwtFilter implements Filter {
     // 检查请求路径是否是免验证路径
     private boolean isExcludedPath(String requestURI) {
         return requestURI.equals("/user/login")
-                || requestURI.equals("/user/register")
-                || requestURI.equals("/user/getAccessToken");
+                || requestURI.equals("/user/register");
     }
 }

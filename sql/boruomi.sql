@@ -11,17 +11,17 @@
  Target Server Version : 80026 (8.0.26)
  File Encoding         : 65001
 
- Date: 14/11/2024 12:18:09
+ Date: 14/11/2024 15:30:51
 */
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- ----------------------------
--- Table structure for sys_permisson
+-- Table structure for sys_permission
 -- ----------------------------
-DROP TABLE IF EXISTS `sys_permisson`;
-CREATE TABLE `sys_permisson`  (
+DROP TABLE IF EXISTS `sys_permission`;
+CREATE TABLE `sys_permission`  (
   `id` bigint NOT NULL COMMENT '主键',
   `permission_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '权限名称',
   `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '权限描述',
@@ -32,9 +32,9 @@ CREATE TABLE `sys_permisson`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '系统-权限表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of sys_permisson
+-- Records of sys_permission
 -- ----------------------------
-INSERT INTO `sys_permisson` VALUES (1001, '查询用户List', '查询用户List', '/user/getList', '2024-11-14 11:08:48', '2024-11-14 11:08:51');
+INSERT INTO `sys_permission` VALUES (1001, '查询用户List', '查询用户List', '/user/getList', '2024-11-14 11:08:48', '2024-11-14 11:08:51');
 
 -- ----------------------------
 -- Table structure for sys_role
@@ -79,7 +79,7 @@ DROP TABLE IF EXISTS `sys_user`;
 CREATE TABLE `sys_user`  (
   `id` bigint NOT NULL COMMENT '主键',
   `account` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '账号',
-  `username` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '用户名',
+  `user_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '用户名',
   `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '密码',
   `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '邮箱',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',

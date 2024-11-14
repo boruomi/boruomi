@@ -2,8 +2,12 @@ package com.boruomi.business.service.Impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.boruomi.business.mapper.SysRoleMapper;
 import com.boruomi.business.mapper.SysUserMapper;
+import com.boruomi.business.mapper.SysUserRolesMapper;
+import com.boruomi.business.model.entity.SysPermissionEntity;
 import com.boruomi.business.model.entity.SysUserEntity;
+import com.boruomi.business.model.entity.SysUserRolesEntity;
 import com.boruomi.business.model.entity.Token;
 import com.boruomi.business.model.vo.SysUserVO;
 import com.boruomi.business.service.ISysUserService;
@@ -15,14 +19,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
 public class SysUserService extends ServiceImpl<SysUserMapper, SysUserEntity> implements ISysUserService {
     @Autowired
     private  SysUserMapper sysUserMapper;
+    @Autowired
+    private SysRoleMapper sysRoleMapper;
+    @Autowired
+    private SysUserRolesMapper sysUserRolesMapper;
     @Autowired
     private RedisTemplate<String,Object> redisTemplate;
     @Autowired
@@ -46,10 +58,11 @@ public class SysUserService extends ServiceImpl<SysUserMapper, SysUserEntity> im
 
     @Override
     public Token login(SysUserEntity user) {
-        SysUserEntity authenticate = authenticate(user);
-        if (null != authenticate){
-            String accessToken = jwtService.createAccessToken(user.getAccount(), user.getUserName());
-            String refreshToken = jwtService.createRefreshToken(user.getAccount(), user.getUserName());
+        SysUserEntity entity = authenticate(user);
+        if (null != entity){
+            List<String> permissions = getPermissionsByUserId(entity.getId());
+            String accessToken = jwtService.createAccessToken(entity.getId(), entity.getUserName(),permissions);
+            String refreshToken = jwtService.createRefreshToken(entity.getId(), entity.getUserName());
             return Token.builder()
                     .accessToken(accessToken)
                     .refreshToken(refreshToken)
@@ -71,9 +84,10 @@ public class SysUserService extends ServiceImpl<SysUserMapper, SysUserEntity> im
     public String getAccessToken(String refreshToken) {
         if (refreshToken == null) throw new RuntimeException("refreshToken is null");
         String realToken = jwtService.getRealToken(refreshToken);
-        String userId = jwtService.getUserId(realToken);
+        Long userId =Long.valueOf(jwtService.getUserId(realToken)) ;
         String username = jwtService.getUsername(realToken);
-        return jwtService.createAccessToken(userId,username);
+        List<String> permissions = getPermissionsByUserId(userId);
+        return jwtService.createAccessToken(userId,username, permissions);
     }
 
     /**
@@ -90,12 +104,24 @@ public class SysUserService extends ServiceImpl<SysUserMapper, SysUserEntity> im
             try {
                 String decrypt = AESUtil.decrypt(sysUserEntity.getPassword(), AESUtil.getSecretKey());
                 if (decrypt.equals(password)){
-                    return user;
+                    return sysUserEntity;
                 }
             } catch (Exception e) {
                 log.error("decrypt password fail",e);
             }
         }
         return null;
+    }
+
+    private List<String> getPermissionsByUserId(Long userId){
+        LambdaQueryWrapper<SysUserRolesEntity> userRolesWrapper = new LambdaQueryWrapper<>();
+        userRolesWrapper.eq(SysUserRolesEntity::getUserId,userId);
+        List<SysUserRolesEntity> sysUserRolesEntities = sysUserRolesMapper.selectList(userRolesWrapper);
+        if (!sysUserRolesEntities.isEmpty()){
+            List<Long> roleIds = sysUserRolesEntities.stream()
+                    .map(SysUserRolesEntity::getRoleId).toList();
+          return  sysRoleMapper.getPermissionsByRoleId(roleIds).stream().map(SysPermissionEntity::getPath).toList();
+        }
+        return new ArrayList<>();
     }
 }

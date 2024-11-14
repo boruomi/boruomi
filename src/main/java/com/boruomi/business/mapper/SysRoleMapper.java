@@ -1,12 +1,14 @@
 package com.boruomi.business.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.boruomi.business.model.entity.SysPermissionEntity;
 import com.boruomi.business.model.entity.SysRoleEntity;
 import com.boruomi.business.model.entity.SysUserEntity;
 import com.boruomi.business.model.vo.SysUserVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -14,4 +16,7 @@ import java.util.Optional;
  */
 @Mapper
 public interface SysRoleMapper extends BaseMapper<SysRoleEntity> {
+
+    List<SysPermissionEntity> getPermissionsByRoleId(@Param("roleIds") List<Long> roleIds);
+
 }

@@ -2,4 +2,18 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.boruomi.business.mapper.SysRoleMapper">
 
+    <select id="getPermissionsByRoleId" resultType="com.boruomi.business.model.entity.SysPermissionEntity">
+        select distinct p.* from sys_role_permissions rp
+        left join sys_permission p on rp.permission_id = p.id
+        <where>
+            <if test="roleIds != null and roleIds.size > 0">
+                rp.role_id in
+                <foreach collection="roleIds" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+
 </mapper>
