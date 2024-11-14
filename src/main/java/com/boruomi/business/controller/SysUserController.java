@@ -18,7 +18,7 @@ import java.util.List;
 public class SysUserController {
     private final SysUserService sysUserService;
 
-    @GetMapping("/getUserList")
+    @GetMapping("/getList")
     public R getUserList() {
         List<SysUserEntity> list = sysUserService.list();
         return R.data(list);

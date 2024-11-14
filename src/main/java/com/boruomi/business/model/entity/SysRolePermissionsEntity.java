@@ -6,38 +6,30 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 用户 实体类
  */
 @Data
-@TableName("sys_user")
-public class SysUserEntity implements Serializable {
-
+@TableName("sys_role_permissions")
+public class SysRolePermissionsEntity implements Serializable {
 	@TableId(value = "id", type = IdType.ASSIGN_ID)
 	private Long id;
-
 	/**
-	 * 账号
+	 * 用户id
 	 */
-	private String account;
-
+	private Long userId;
 	/**
-	 * 密码
-	 */
-	private String password;
-
-	/**
-	 * 用户名
-	 */
-	private String userName;
-
-	/**
-	 * 角色
+	 * 角色id
 	 */
 	private Long roleId;
 	/**
-	 * 状态（0：未激活 1：已激活 2：已禁用  3：已锁定 4：已删除）
+	 * 创建时间
 	 */
-	private Integer status;
+	private Date createTime;
+	/**
+	 * 更新时间
+	 */
+	private Date updateTime;
 }
